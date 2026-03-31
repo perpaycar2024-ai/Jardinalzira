@@ -1,8 +1,8 @@
 {
-  "name": "Jardín Residencia",
-  "short_name": "Jardín Resi",
+  "name": "Jardín Alzira",
+  "short_name": "Alzira",
   "description": "Control de riegos, horarios e incidencias de la residencia",
-  "start_url": "./jardin-residencia.html",
+  "start_url": "/jardinalzira/index.html",
   "display": "standalone",
   "background_color": "#2e3328",
   "theme_color": "#2e3328",
