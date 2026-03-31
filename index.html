@@ -2,12 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#2e3328">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Jardín Resi">
-<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="Alzira">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="manifest" href="./manifest.json">
 <title>Jardín Alzira</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -528,13 +530,12 @@ header {
 
 <header>
   <div class="header-texto">
-    <h1>🌿 Jardín Residencia</h1>
+    <h1>🌿 Jardín Alzira</h1>
     <p>riegos · horarios · incidencias</p>
   </div>
   <button class="btn-nueva-zona" onclick="abrirModal('modalMenu')">⚙️ Menú</button>
 </header>
 
-<!-- Modal menú -->
 <div class="modal-overlay" id="modalMenu">
   <div class="modal">
     <div class="modal-title">⚙️ Opciones</div>
@@ -547,7 +548,6 @@ header {
 
 <div class="main-container" id="app"></div>
 
-<!-- Modal subzona -->
 <div class="modal-overlay" id="modalSubzona">
   <div class="modal">
     <div class="modal-title">Nueva subzona</div>
@@ -562,7 +562,6 @@ header {
   </div>
 </div>
 
-<!-- Modal horario -->
 <div class="modal-overlay" id="modalHorario">
   <div class="modal">
     <div class="modal-title">Nuevo horario</div>
@@ -601,7 +600,6 @@ header {
   </div>
 </div>
 
-<!-- Modal editar subzona -->
 <div class="modal-overlay" id="modalEditarSubzona">
   <div class="modal">
     <div class="modal-title">Editar subzona</div>
@@ -616,7 +614,6 @@ header {
   </div>
 </div>
 
-<!-- Modal nueva zona -->
 <div class="modal-overlay" id="modalNuevaZona">
   <div class="modal">
     <div class="modal-title">Nueva zona</div>
@@ -648,7 +645,6 @@ header {
   </div>
 </div>
 
-<!-- Modal editar zona -->
 <div class="modal-overlay" id="modalEditarZona">
   <div class="modal">
     <div class="modal-title">Editar zona</div>
@@ -695,18 +691,12 @@ const ZONAS_BASE = [
 function cargarEstado() {
   const guardado = localStorage.getItem(STORAGE_KEY);
   if (guardado) return JSON.parse(guardado);
-
-  // Migrar datos de v1 si existen
-  const v1 = localStorage.getItem('jardin_residencia_v1');
-  const datosV1 = v1 ? JSON.parse(v1) : {};
-
   const zonas = ZONAS_BASE.map(z => ({
     id: z.id,
     nombre: z.nombre,
     icono: z.icono,
-    subzonas: datosV1[z.id]?.subzonas || []
+    subzonas: []
   }));
-
   return { zonas };
 }
 
@@ -725,49 +715,27 @@ let ctxEditarZonaId = null;
 
 // ===== RENDER =====
 function render() {
-  // Guardar qué está abierto antes de re-renderizar
   const zonasAbiertas = new Set();
   const subzonasAbiertas = new Set();
   const tabsActivos = {};
   document.querySelectorAll('.zona-body.open').forEach(el => zonasAbiertas.add(el.id.replace('body_','')));
   document.querySelectorAll('.subzona-body.open').forEach(el => subzonasAbiertas.add(el.id.replace('body_sz_','')));
-  document.querySelectorAll('.subzona-body.open').forEach(sb => {
-    const szId = sb.id.replace('body_sz_','');
-    const activeTab = sb.querySelector('.tab-btn.active');
-    if (activeTab) {
-      const onclick = activeTab.getAttribute('onclick') || '';
-      const match = onclick.match(/'horarios'|'incidencias'/);
-      if (match) tabsActivos[szId] = match[0].replace(/'/g,'');
-    }
-  });
-
+  
   const app = document.getElementById('app');
   app.innerHTML = '';
   estado.zonas.forEach(zona => app.appendChild(renderZona(zona)));
 
-  // Restaurar estado abierto
   zonasAbiertas.forEach(id => {
     const body = document.getElementById(`body_${id}`);
     const chevron = document.getElementById(`chevron_${id}`);
-    if (body) { body.classList.add('open'); }
-    if (chevron) { chevron.classList.add('open'); }
+    if (body) body.classList.add('open');
+    if (chevron) chevron.classList.add('open');
   });
   subzonasAbiertas.forEach(id => {
     const body = document.getElementById(`body_sz_${id}`);
     const chevron = document.getElementById(`chevron_sz_${id}`);
-    if (body) { body.classList.add('open'); }
-    if (chevron) { chevron.classList.add('open'); }
-    // Restaurar pestaña activa
-    if (tabsActivos[id] && body) {
-      const tabPanel = document.getElementById(`tab_${tabsActivos[id]}_${id}`);
-      const tabBtns = body.querySelectorAll('.tab-btn');
-      body.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      tabBtns.forEach(b => {
-        b.classList.remove('active');
-        if (b.getAttribute('onclick')?.includes(`'${tabsActivos[id]}'`)) b.classList.add('active');
-      });
-      if (tabPanel) tabPanel.classList.add('active');
-    }
+    if (body) body.classList.add('open');
+    if (chevron) chevron.classList.add('open');
   });
 }
 
@@ -870,9 +838,8 @@ function renderIncidencias(zonaId, sz) {
   const lista = sz.incidencias || [];
   let html = '';
   if (!lista.length) {
-    html += `<div class="empty-state">Sin incidencias registradas</div>`;
+    html += `<div class="empty-state">Sin incidencias</div>`;
   } else {
-    // Urgentes siempre primero
     const urgentes = lista.map((inc,i) => ({inc,i})).filter(x => x.inc.urgente);
     const normales = lista.map((inc,i) => ({inc,i})).filter(x => !x.inc.urgente);
     [...urgentes.reverse(), ...normales.reverse()].forEach(({inc, i}) => {
@@ -886,7 +853,7 @@ function renderIncidencias(zonaId, sz) {
     });
   }
   html += `<div class="form-nueva-incidencia">
-    <textarea class="textarea-incidencia" id="txt_inc_${sz.id}" placeholder="Escribe una incidencia o nota..."></textarea>
+    <textarea class="textarea-incidencia" id="txt_inc_${sz.id}" placeholder="Nota o incidencia..."></textarea>
     <div class="incidencia-footer">
       <label class="check-urgente"><input type="checkbox" id="chk_urgente_${sz.id}"> 🔴 Urgente</label>
       <button class="btn-primary" onclick="guardarIncidencia('${zonaId}','${sz.id}')">Guardar</button>
@@ -895,7 +862,7 @@ function renderIncidencias(zonaId, sz) {
   return html;
 }
 
-// ===== TOGGLE =====
+// ===== ACCIONES =====
 function toggleZona(id) {
   document.getElementById(`body_${id}`).classList.toggle('open');
   document.getElementById(`chevron_${id}`).classList.toggle('open');
@@ -912,10 +879,8 @@ function switchTab(szId, tab, btn) {
   document.getElementById(`tab_${tab}_${szId}`).classList.add('active');
 }
 
-// ===== ZONAS =====
 function abrirModalNuevaZona() {
   document.getElementById('inputNuevaZonaNombre').value = '';
-  document.getElementById('selectNuevaZonaIcono').value = '🌿';
   abrirModal('modalNuevaZona');
 }
 function guardarNuevaZona() {
@@ -927,7 +892,7 @@ function guardarNuevaZona() {
 }
 function eliminarZona(id) {
   const z = estado.zonas.find(z => z.id === id);
-  if (!confirm(`¿Eliminar la zona "${z.nombre}" y todos sus datos?`)) return;
+  if (!confirm(`¿Eliminar la zona "${z.nombre}"?`)) return;
   estado.zonas = estado.zonas.filter(z => z.id !== id);
   guardarEstado(); render();
 }
@@ -947,7 +912,6 @@ function guardarEdicionZona() {
   guardarEstado(); cerrarModal('modalEditarZona'); render();
 }
 
-// ===== SUBZONAS =====
 function abrirModalSubzona(zonaId) {
   ctxZonaId = zonaId;
   document.getElementById('inputSubzonaNombre').value = '';
@@ -961,7 +925,7 @@ function guardarSubzona() {
   guardarEstado(); cerrarModal('modalSubzona'); render();
 }
 function eliminarSubzona(zonaId, szId) {
-  if (!confirm('¿Eliminar esta subzona y todos sus datos?')) return;
+  if (!confirm('¿Eliminar subzona?')) return;
   const zona = estado.zonas.find(z => z.id === zonaId);
   zona.subzonas = zona.subzonas.filter(s => s.id !== szId);
   guardarEstado(); render();
@@ -980,7 +944,6 @@ function guardarEdicionSubzona() {
   guardarEstado(); cerrarModal('modalEditarSubzona'); render();
 }
 
-// ===== HORARIOS =====
 function abrirModalHorario(zonaId, szId, temporada) {
   ctxHorarioZona = zonaId; ctxHorarioSubzona = szId;
   document.getElementById('selectTemporada').value = temporada;
@@ -1010,7 +973,6 @@ function eliminarHorario(zonaId, szId, temporada, idx) {
   guardarEstado(); render();
 }
 
-// ===== INCIDENCIAS =====
 function guardarIncidencia(zonaId, szId) {
   const txt = document.getElementById(`txt_inc_${szId}`).value.trim();
   if (!txt) return;
@@ -1019,10 +981,12 @@ function guardarIncidencia(zonaId, szId) {
   const sz = zona.subzonas.find(s => s.id === szId);
   if (!sz.incidencias) sz.incidencias = [];
   sz.incidencias.push({ texto:txt, fecha:Date.now(), urgente });
+  document.getElementById(`txt_inc_${szId}`).value = '';
+  document.getElementById(`chk_urgente_${szId}`).checked = false;
   guardarEstado(); render();
 }
 function eliminarIncidencia(zonaId, szId, idx) {
-  if (!confirm('¿Eliminar esta incidencia?')) return;
+  if (!confirm('¿Eliminar incidencia?')) return;
   const zona = estado.zonas.find(z => z.id === zonaId);
   zona.subzonas.find(s => s.id === szId).incidencias.splice(idx, 1);
   guardarEstado(); render();
@@ -1037,16 +1001,15 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 
 // ===== BACKUP =====
 function exportarBackup() {
-  const backup = { fecha: new Date().toISOString(), version: STORAGE_KEY, datos: estado };
+  const backup = { fecha: new Date().toISOString(), datos: estado };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `jardin-resi-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `jardin-alzira-backup.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
-
 function importarBackup(input) {
   const file = input.files[0];
   if (!file) return;
@@ -1054,22 +1017,23 @@ function importarBackup(input) {
   reader.onload = e => {
     try {
       const backup = JSON.parse(e.target.result);
-      if (!backup.datos?.zonas) { alert('❌ Archivo no válido'); return; }
-      if (!confirm('¿Restaurar backup? Se sobreescribirán todos los datos actuales.')) return;
+      if (!confirm('¿Restaurar backup?')) return;
       estado = backup.datos;
-      guardarEstado();
-      render();
-      alert('✅ Backup restaurado correctamente');
-    } catch { alert('❌ Error al leer el archivo'); }
+      guardarEstado(); render();
+    } catch { alert('Error al leer el archivo'); }
   };
   reader.readAsText(file);
-  input.value = '';
 }
 
 render();
 
+// REGISTRO DEL SERVICE WORKER (CORREGIDO)
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Service Worker Registrado!', reg))
+      .catch(err => console.error('Fallo al registrar SW', err));
+  });
 }
 </script>
 </body>
