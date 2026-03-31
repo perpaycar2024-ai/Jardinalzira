@@ -1,7 +1,7 @@
 {
   "name": "Jardín Alzira",
   "short_name": "Alzira",
-  "description": "Control de riegos, horarios e incidencias de la residencia",
+  "description": "Control de riegos, horarios e incidencias",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#2e3328",
