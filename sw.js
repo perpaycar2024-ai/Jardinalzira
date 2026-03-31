@@ -1,7 +1,7 @@
 // VERSIÓN 1 — Jardín Residencia
 const CACHE_NAME = 'jardin-alzira-v1';
 const ASSETS = [
-  './index.html',
+  '/Jardinalzira/index.html',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Josefin+Sans:wght@300;400;600;700&display=swap'
 ];
