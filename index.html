@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0b0f19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Alzira">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="manifest" href="./manifest.json">
+<title>Jardín Alzira</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-main:       #0b0f19;
+  --bg-card:       rgba(17, 24, 39, 0.6);
+  --bg-card-hover: rgba(31, 41, 55, 0.7);
+  --border-glass:  rgba(255, 255, 255, 0.08);
+  
+  --text-main:     #f3f4f6;
+  --text-muted:    #9ca3af;
+  
+  --accent-green:  #10b981;
+  --accent-amber:  #f59e0b;
+  --accent-red:    #ef4444;
+  
+  --urgente-bg:    rgba(239, 68, 68, 0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding-bottom: 3rem;
+  background-image:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.02), transparent 50%);
+  background-attachment: fixed;
+}
+
+header {
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 1.2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-texto h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.header-texto p {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.header-acciones {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-header {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-header:active { background: rgba(255, 255, 255, 0.12); }
+
+.main-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* SISTEMA DE PÁGINAS / VISTAS LIMPIAS (SIN DESPLEGABLES) */
+.vista-pantalla { display: none; }
+.vista-pantalla.activa { display: block; }
+
+/* RESUMEN DIARIO HOME */
+.panel-resumen {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+.resumen-titulo {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.resumen-lista { display: flex; flex-direction: column; gap: 8px; }
+.resumen-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  border-left: 4px solid var(--accent-green);
+  font-weight: 600;
+}
+
+/* GRID ZONAS */
+.grid-zonas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.tarjeta-zona {
+  background: var(--bg-card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: 1 / 1;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.tarjeta-zona:active {
+  transform: scale(0.96);
+  background: var(--bg-card-hover);
+}
+.tarjeta-zona.alerta-urgente {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.tarjeta-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.tarjeta-icono { font-size: 1.8rem; }
+
+.tarjeta-badge-inc {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.tarjeta-badge-inc.urgente { background: var(--accent-red); color: #ffffff; }
+.tarjeta-badge-inc.normal { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+.tarjeta-info-bottom { display: flex; flex-direction: column; gap: 4px; }
+.tarjeta-nombre-row { display: flex; align-items: center; gap: 6px; }
+.tarjeta-nombre { font-size: 0.95rem; font-weight: 600; color: var(--text-main); line-height: 1.2; }
+.icono-grifo-riego { font-size: 1.1rem; }
+.tarjeta-subtexto { font-size: 0.75rem; color: var(--text-muted); }
+
+/* VISTAS PAGINADAS (FICHA, DIARIO Y EDICIÓN) */
+.btn-regresar {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-regresar:active { color: var(--text-main); }
+
+.page-header { margin-bottom: 16px; }
+.page-titulo { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.page-subtitulo { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+.ficha-acciones-top {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+/* PANTALLA DIARIO */
+.diario-pantalla-lista { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.diario-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.diario-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.diario-card-zona { font-weight: 700; color: var(--accent-amber); }
+.diario-card-texto { font-size: 0.85rem; color: var(--text-main); font-weight: 500; line-height: 1.3; }
+.diario-card-acciones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+/* SUBZONAS */
+.subzonas-lista { display: flex; flex-direction: column; gap: 10px; }
+.ficha-subzona {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+}
+.ficha-subzona:active { background: rgba(255, 255, 255, 0.07); }
+.ficha-subzona.requiere-atencion { border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.02); }
+.ficha-subzona.requiere-atencion-urgente { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.04); }
+
+.subzona-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.subzona-tit { font-size: 0.9rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+.subzona-alerta-tag { font-size: 0.65rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
+.subzona-alerta-tag.urgente { background: var(--accent-red); color: white; }
+.subzona-alerta-tag.normal { background: var(--accent-amber); color: #0b0f19; }
+
+.subzona-epoca-badge { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.06); color: var(--text-muted); }
+.subzona-epoca-badge.verano { color: var(--accent-amber); background: rgba(245,158,11,0.1); }
+.subzona-epoca-badge.invierno { color: #60a5fa; background: rgba(96,165,250,0.1); }
+.subzona-epoca-badge.entretiempo { color: #f97316; background: rgba(249,115,22,0.1); }
+
+.subzona-datos-linea { display: flex; gap: 12px; font-size: 0.78rem; color: var(--text-muted); align-items: center; }
+.subzona-datos-linea strong { color: var(--text-main); }
+.subzona-dias-tags { display: inline-flex; gap: 3px; margin-left: auto; }
+.subzona-dias-tags span { font-size: 0.58rem; font-weight: 700; padding: 1px 4px; background: rgba(255,255,255,0.05); border-radius: 3px; color: var(--text-main); }
+
+/* BOTONES Y FORMULARIOS */
+.btn-primary { padding: 10px 16px; background: rgba(255, 255, 255, 0.08); color: var(--text-main); border: 1px solid var(--border-glass); border-radius: 8px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.btn-primary:active { background: rgba(255, 255, 255, 0.16); }
+.btn-secondary { padding: 10px 14px; background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 8px; font-family: inherit; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
+.btn-secondary:active { color: var(--text-main); background: rgba(255,255,255,0.04); }
+.btn-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+.btn-danger:active { background: rgba(239, 68, 68, 0.25); }
+.btn-xs { padding: 4px 8px; font-size: 0.7rem; border-radius: 6px; }
+
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 12px; border: 1px solid var(--border-glass); border-radius: 10px; font-family: inherit; font-size: 0.85rem; background: rgba(0, 0, 0, 0.3); color: var(--text-main); }
+.dias-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dia-btn { padding: 10px 0; border: 1px solid var(--border-glass); background: rgba(0, 0, 0, 0.2); color: var(--text-muted); border-radius: 8px; font-family: inherit; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-align: center; }
+.dia-btn.selected { background: rgba(255, 255, 255, 0.15); color: var(--text-main); border-color: rgba(255, 255, 255, 0.3); }
+
+/* TABS Y PANTALLA DE EDICIÓN COMPLETA */
+.tabs-edicion { display: flex; gap: 4px; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 4px; border: 1px solid var(--border-glass); margin-bottom: 16px; }
+.tab-ed-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-family: inherit; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.tab-ed-btn.active { background: rgba(255,255,255,0.08); color: var(--text-main); }
+.panel-ed-temporada { display: none; }
+.panel-ed-temporada.active { display: block; }
+
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.incidencias-box { margin-top: 20px; border-top: 1px solid var(--border-glass); padding-top: 16px; }
+.incidencia-row { background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; border-left: 4px solid var(--accent-amber); }
+.incidencia-row.urgente { border-left-color: var(--accent-red); background: var(--urgente-bg); }
+
+.pantalla-acciones-bottom {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-glass);
+}
+
+/* MODALES SOLO PARA DIÁLOGOS Y CREACIÓN RÁPIDA */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 200; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px 20px 0 0; padding: 22px; width: 100%; max-width: 600px; border: 1px solid var(--border-glass); border-bottom: none; box-shadow: 0 -10px 30px rgba(0,0,0,0.3); animation: slideUp 0.2s ease-out; max-height: 90vh; overflow-y: auto; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-title { font-size: 1.1rem; color: var(--text-main); margin-bottom: 16px; font-weight: 700; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+.empty-state { text-align: center; color: var(--text-muted); font-size: 0.75rem; padding: 10px 0; }
+
+#modalDialogoGlobal .modal { border-radius: 16px; margin-bottom: auto; margin-top: auto; align-self: center; width: 90%; max-width: 400px; border-bottom: 1px solid var(--border-glass); }
+.dialogo-texto { font-size: 0.9rem; color: var(--text-main); margin-bottom: 20px; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-texto">
+    <h1 onclick="navegarA('pantalla-home')" style="cursor:pointer;">Jardín Alzira</h1>
+    <p>riegos · mantenimiento</p>
+  </div>
+  <div class="header-acciones">
+    <button class="btn-header" onclick="navegarA('pantalla-diario')">📖 Diario</button>
+    <button class="btn-header" onclick="abrirModal('modalMenu')">⚙️</button>
+  </div>
+</header>
+
+<!-- MODAL DIÁLOGO GLOBAL -->
+<div class="modal-overlay" id="modalDialogoGlobal">
+  <div class="modal">
+    <div class="modal-title" id="dialogoTitulo">Aviso</div>
+    <div class="dialogo-texto" id="dialogoMensaje">Mensaje...</div>
+    <div class="modal-actions" id="dialogoAcciones"></div>
+  </div>
+</div>
+
+<!-- MENÚ GLOBAL -->
+<div class="modal-overlay" id="modalMenu">
+  <div class="modal">
+    <div class="modal-title">⚙️ Opciones del Sistema</div>
+    <button class="btn-primary" style="width:100%;margin-bottom:10px;padding:14px;text-align:left;" onclick="cerrarModal('modalMenu');abrirModalNuevaZona()">🌿 Nueva zona de jardín</button>
+    <button class="btn-primary" style="width:100%;margin-bottom:10px;padding:14px;text-align:left;" onclick="cerrarModal('modalMenu');exportarBackup()">⬇️ Exportar copia de seguridad (JSON)</button>
+    <label class="btn-primary" style="width:100%;padding:14px;display:block;text-align:left;cursor:pointer;">⬆️ Restaurar copia de seguridad<input type="file" accept=".json" style="display:none" onchange="importarBackup(this)"></label>
+    <button class="btn-secondary" style="width:100%;margin-top:14px;text-align:center;" onclick="cerrarModal('modalMenu')">Cerrar</button>
+  </div>
+</div>
+
+<div class="main-container">
+  
+  <!-- PÁGINA 1: HOME -->
+  <div id="pantalla-home" class="vista-pantalla activa">
+    <div class="panel-resumen">
+      <div class="resumen-titulo">
+        <span>🚰 Zonas Activas de Riego Hoy</span>
+        <span id="fecha-hoy-resumen" style="opacity:0.6; font-size:0.7rem;"></span>
+      </div>
+      <div class="resumen-lista" id="lista-resumen-diario"></div>
+    </div>
+
+    <div class="grid-zonas" id="grid-zonas-home"></div>
+  </div>
+
+  <!-- PÁGINA 2: FICHA DE ZONA COMPLETA -->
+  <div id="pantalla-ficha" class="vista-pantalla">
+    <button class="btn-regresar" onclick="navegarA('pantalla-home')">← Volver al inicio</button>
+    
+    <div class="page-header">
+      <div class="page-titulo" id="ficha-zona-titulo">Entrada</div>
+      <div class="page-subtitulo" id="ficha-zona-proximo">Subzonas configuradas</div>
+    </div>
+
+    <div class="ficha-acciones-top">
+      <button class="btn-primary" onclick="abrirModalNuevaSubzona()">+ Añadir Subzona</button>
+      <button class="btn-primary" onclick="abrirModalAnadirEntradaDiario(zonaSeleccionadaId)">📖 Nota al Diario</button>
+      <button class="btn-secondary" onclick="abrirEditarZonaActual()">Editar Zona</button>
+      <button class="btn-secondary btn-danger" onclick="eliminarZonaActual()" style="margin-left:auto;">Eliminar</button>
+    </div>
+
+    <div class="subzonas-lista" id="lista-subzonas-ficha"></div>
+  </div>
+
+  <!-- PÁGINA 3: DIARIO DE MANTENIMIENTO -->
+  <div id="pantalla-diario" class="vista-pantalla">
+    <button class="btn-regresar" onclick="navegarA('pantalla-home')">← Volver al inicio</button>
+    
+    <div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div class="page-titulo">📖 Diario de Mantenimiento</div>
+        <div class="page-subtitulo">Registro histórico de reparaciones y tareas</div>
+      </div>
+      <button class="btn-primary" onclick="abrirModalAnadirEntradaDiario()">+ Añadir Nota</button>
+    </div>
+
+    <div class="diario-pantalla-lista" id="contenedor-diario-mantenimiento"></div>
+  </div>
+
+  <!-- PÁGINA 4: EDICIÓN DE SUBZONA EN PANTALLA COMPLETA (SIN MODAL/DESPLEGABLE) -->
+  <div id="pantalla-editar-subzona" class="vista-pantalla">
+    <button class="btn-regresar" onclick="regresarA('pantalla-ficha')">← Volver a la Ficha</button>
+
+    <div class="page-header">
+      <div class="page-titulo">✏️ Editar Subzona</div>
+      <div class="page-subtitulo">Ajusta horarios, días e incidencias</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre de la Subzona</label>
+      <input type="text" class="form-input" id="edSubzonaNombre">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Época del Año Activa</label>
+      <select class="form-select" id="edSubzonaEpocaActiva" onchange="actualizarInterfazModalEdicion()">
+        <option value="verano">☀️ Verano</option>
+        <option value="invierno">❄️ Invierno</option>
+        <option value="entretiempo">🍂 Entretiempo</option>
+      </select>
+    </div>
+
+    <div class="tabs-edicion">
+      <button class="tab-ed-btn active" id="tabEd_verano" onclick="switchTabEdicion('verano')">☀️ Verano</button>
+      <button class="tab-ed-btn" id="tabEd_invierno" onclick="switchTabEdicion('invierno')">❄️ Invierno</button>
+      <button class="tab-ed-btn" id="tabEd_entretiempo" onclick="switchTabEdicion('entretiempo')">🍂 Entretiempo</button>
+    </div>
+
+    <div id="panelEd_verano" class="panel-ed-temporada active"></div>
+    <div id="panelEd_invierno" class="panel-ed-temporada"></div>
+    <div id="panelEd_entretiempo" class="panel-ed-temporada"></div>
+
+    <div class="incidencias-box">
+      <label class="form-label">⚠️ Incidencias Pendientes</label>
+      <div id="edSubzonaListaIncidencias"></div>
+      
+      <div style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
+        <textarea class="form-textarea" id="edNuevaIncidenciasTexto" placeholder="Describir avería, rotura de difusor..."></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <label style="font-size:0.8rem; color:var(--text-muted); cursor:pointer;"><input type="checkbox" id="edNuevaIncidenciaUrgente"> Marcar Urgente</label>
+          <button class="btn-primary" style="padding:6px 12px; font-size:0.8rem;" onclick="agregarIncidenciaDesdeEdicion()">Añadir Nota</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pantalla-acciones-bottom">
+      <button class="btn-secondary btn-danger" onclick="eliminarSubzonaDesdeEdicion()">Borrar Subzona</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-secondary" onclick="regresarA('pantalla-ficha')">Cancelar</button>
+        <button class="btn-primary" onclick="guardarCambiosSubzona()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: EDICIÓN / ALTA NOTA DIARIO -->
+<div class="modal-overlay" id="modalEntradaDiario">
+  <div class="modal">
+    <div class="modal-title" id="modalEntradaDiarioTitulo">Nota de Mantenimiento</div>
+    
+    <div class="form-group">
+      <label class="form-label">Zona Asociada</label>
+      <select class="form-select" id="inputDiarioZonaSelect"></select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Fecha</label>
+      <input type="text" class="form-input" id="inputDiarioFecha">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Descripción de la Tarea / Reparación</label>
+      <textarea class="form-textarea" id="inputDiarioTexto" placeholder="Ej: Cambiada pila del programador, limpiados filtros..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modalEntradaDiario')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarEntradaDiario()">Guardar Entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVA SUBZONA -->
+<div class="modal-overlay" id="modalSubzonaNueva">
+  <div class="modal">
+    <div class="modal-title">Nueva Subzona</div>
+    <div class="form-group">
+      <label class="form-label">Nombre de la subzona</label>
+      <input type="text" class="form-input" id="inputSubzonaNombre" placeholder="Ej: Difusores Césped Izquierdo">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modalSubzonaNueva')">Cancelar</button>
+      <button class="btn-primary" onclick="crearSubzonaNueva()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVA ZONA -->
+<div class="modal-overlay" id="modalNuevaZona">
+  <div class="modal">
+    <div class="modal-title">Nueva Zona de Jardín</div>
+    <div class="form-group">
+      <label class="form-label">Nombre de la zona</label>
+      <input type="text" class="form-input" id="inputNuevaZonaNombre" placeholder="Ej: Zona Piscina, Rosaleda...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Icono identificativo</label>
+      <select class="form-select" id="selectNuevaZonaIcono">
+        <option value="🌿">🌿 Planta</option>
+        <option value="🌸">🌸 Flor</option>
+        <option value="🌳">🌳 Árbol</option>
+        <option value="🌵">🌵 Cactus</option>
+        <option value="🍃">🍃 Hoja</option>
+        <option value="🪴">🪴 Maceta</option>
+        <option value="🚪">🚪 Entrada</option>
+        <option value="🏡">🏡 Cobertizo</option>
+        <option value="⛪">⛪ Gruta</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarNuevaZona()">Crear Zona</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR ZONA -->
+<div class="modal-overlay" id="modalEditarZona">
+  <div class="modal">
+    <div class="modal-title">Editar Zona de Jardín</div>
+    <div class="form-group">
+      <label class="form-label">Nombre de la zona</label>
+      <input type="text" class="form-input" id="inputEditZonaNombre">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Icono identificativo</label>
+      <select class="form-select" id="selectEditZonaIcono">
+        <option value="🌿">🌿 Planta</option>
+        <option value="🌸">🌸 Flor</option>
+        <option value="🌳">🌳 Árbol</option>
+        <option value="🌵">🌵 Cactus</option>
+        <option value="🍃">🍃 Hoja</option>
+        <option value="🪴">🪴 Maceta</option>
+        <option value="🚪">🚪 Entrada</option>
+        <option value="🏡">🏡 Cobertizo</option>
+        <option value="⛪">⛪ Gruta</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modalEditarZona')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarEdicionZona()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ESTADO GLOBAL
+let appData = { zonas: [] };
+let zonaSeleccionadaId = null;
+let subzonaSeleccionadaId = null;
+let edicionTempSubzona = null;
+let entradaDiarioEdicionIndex = null;
+
+const DIAS_SEMANA = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+// INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', () => {
+  cargarDatos();
+  navegarA('pantalla-home');
+});
+
+function cargarDatos() {
+  const local = localStorage.getItem('jardin_alzira_data');
+  if (local) {
+    try { appData = JSON.parse(local); } catch (e) { appData = { zonas: [] }; }
+  } else {
+    appData = { zonas: [] };
+  }
+}
+
+function guardarDatosEnStorage() {
+  localStorage.setItem('jardin_alzira_data', JSON.stringify(appData));
+}
+
+// NAVEGACIÓN ENTRE PÁGINAS COMPLETAS
+function navegarA(idPantalla) {
+  document.querySelectorAll('.vista-pantalla').forEach(p => p.classList.remove('activa'));
+  const destino = document.getElementById(idPantalla);
+  if (destino) destino.classList.add('activa');
+  window.scrollTo(0, 0);
+
+  if (idPantalla === 'pantalla-home') renderizarHome();
+  if (idPantalla === 'pantalla-diario') renderizarPantallaDiario();
+}
+
+function regresarA(idPantalla) {
+  if (idPantalla === 'pantalla-ficha' && zonaSeleccionadaId) {
+    verFichaZona(zonaSeleccionadaId);
+  } else {
+    navegarA(idPantalla);
+  }
+}
+
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function mostrarAviso(titulo, mensaje, cb) {
+  document.getElementById('dialogoTitulo').innerText = titulo;
+  document.getElementById('dialogoMensaje').innerText = mensaje;
+  const acc = document.getElementById('dialogoAcciones');
+  acc.innerHTML = `<button class="btn-primary" onclick="cerrarModal('modalDialogoGlobal'); ${cb ? 'cb()' : ''}">Entendido</button>`;
+  abrirModal('modalDialogoGlobal');
+}
+
+function mostrarConfirmacion(titulo, mensaje, funcionOk) {
+  document.getElementById('dialogoTitulo').innerText = titulo;
+  document.getElementById('dialogoMensaje').innerText = mensaje;
+  const acc = document.getElementById('dialogoAcciones');
+  acc.innerHTML = `
+    <button class="btn-secondary" onclick="cerrarModal('modalDialogoGlobal')">Cancelar</button>
+    <button class="btn-primary btn-danger" id="btnConfirmarAccion">Confirmar</button>
+  `;
+  abrirModal('modalDialogoGlobal');
+  document.getElementById('btnConfirmarAccion').onclick = () => {
+    cerrarModal('modalDialogoGlobal');
+    funcionOk();
+  };
+}
+
+// CÁLCULO DÍAS
+function getDiaSemanaIndiceHoy() {
+  const d = new Date().getDay();
+  return d === 0 ? 6 : d - 1;
+}
+
+function esRiegoHoy(sub) {
+  const ep = sub.epocaActiva || 'verano';
+  const config = sub.temporadas ? sub.temporadas[ep] : null;
+  if (!config || !config.dias) return false;
+  return config.dias.includes(getDiaSemanaIndiceHoy());
+}
+
+function zonaTieneRiegoHoy(zona) {
+  return (zona.subzonas || []).some(s => esRiegoHoy(s));
+}
+
+// RENDER HOME
+function renderizarHome() {
+  const hoyTxt = new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+  document.getElementById('fecha-hoy-resumen').innerText = hoyTxt.toUpperCase();
+
+  const listaResumen = document.getElementById('lista-resumen-diario');
+  listaResumen.innerHTML = '';
+  let zonasConRiego = 0;
+
+  appData.zonas.forEach(z => {
+    if (zonaTieneRiegoHoy(z)) {
+      zonasConRiego++;
+      const item = document.createElement('div');
+      item.className = 'resumen-item';
+      item.innerHTML = `
+        <span>${z.icono || '🌿'} ${z.nombre}</span>
+        <span class="icono-grifo-riego">🚰</span>
+      `;
+      listaResumen.appendChild(item);
+    }
+  });
+
+  if (zonasConRiego === 0) {
+    listaResumen.innerHTML = '<div class="empty-state">No hay zonas programadas para regar hoy</div>';
+  }
+
+  const grid = document.getElementById('grid-zonas-home');
+  grid.innerHTML = '';
+
+  appData.zonas.forEach(z => {
+    let incUrgentes = 0;
+    let incNormales = 0;
+
+    (z.subzonas || []).forEach(s => {
+      (s.incidencias || []).forEach(inc => {
+        if (inc.urgente) incUrgentes++;
+        else incNormales++;
+      });
+    });
+
+    const card = document.createElement('div');
+    card.className = `tarjeta-zona ${incUrgentes > 0 ? 'alerta-urgente' : ''}`;
+    card.onclick = () => verFichaZona(z.id);
+
+    let badge = '';
+    if (incUrgentes > 0) badge = `<span class="tarjeta-badge-inc urgente">🚨 ${incUrgentes} URG</span>`;
+    else if (incNormales > 0) badge = `<span class="tarjeta-badge-inc normal">⚠️ ${incNormales}</span>`;
+
+    const grifoIcono = zonaTieneRiegoHoy(z) ? `<span class="icono-grifo-riego" title="Riega hoy">🚰</span>` : '';
+
+    card.innerHTML = `
+      <div class="tarjeta-header">
+        <span class="tarjeta-icono">${z.icono || '🌿'}</span>
+        ${badge}
+      </div>
+      <div class="tarjeta-info-bottom">
+        <div class="tarjeta-nombre-row">
+          <div class="tarjeta-nombre">${z.nombre}</div>
+          ${grifoIcono}
+        </div>
+        <div class="tarjeta-subtexto">${(z.subzonas || []).length} subzonas</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// PÁGINA FICHA DE ZONA
+function verFichaZona(zonaId) {
+  zonaSeleccionadaId = zonaId;
+  const z = appData.zonas.find(item => item.id === zonaId);
+  if (!z) return;
+
+  const tieneRiegoHoy = zonaTieneRiegoHoy(z);
+  const grifoTag = tieneRiegoHoy ? ' 🚰' : '';
+
+  document.getElementById('ficha-zona-titulo').innerText = `${z.icono || '🌿'} ${z.nombre}${grifoTag}`;
+  document.getElementById('ficha-zona-proximo').innerText = `${(z.subzonas || []).length} subzonas en esta zona`;
+
+  const listaSub = document.getElementById('lista-subzonas-ficha');
+  listaSub.innerHTML = '';
+
+  if (!z.subzonas || z.subzonas.length === 0) {
+    listaSub.innerHTML = '<div class="empty-state">No hay subzonas creadas en esta zona.</div>';
+  } else {
+    z.subzonas.forEach(s => {
+      const ep = s.epocaActiva || 'verano';
+      const config = s.temporadas ? s.temporadas[ep] : { minutos: 0, hora: '', dias: [] };
+      let tieneUrg = (s.incidencias || []).some(i => i.urgente);
+      let tieneNorm = (s.incidencias || []).some(i => !i.urgente);
+
+      let claseCard = 'ficha-subzona';
+      if (tieneUrg) claseCard += ' requiere-atencion-urgente';
+      else if (tieneNorm) claseCard += ' requiere-atencion';
+
+      const div = document.createElement('div');
+      div.className = claseCard;
+      div.onclick = () => abrirPantallaEditarSubzona(s.id);
+
+      let tagInc = '';
+      if (tieneUrg) tagInc = `<span class="subzona-alerta-tag urgente">🚨 URGENTE</span>`;
+      else if (tieneNorm) tagInc = `<span class="subzona-alerta-tag normal">⚠️ NOTA</span>`;
+
+      let diasBadges = DIAS_SEMANA.map((d, i) => {
+        const sel = config.dias && config.dias.includes(i);
+        return `<span style="opacity: ${sel ? '1' : '0.2'}">${d}</span>`;
+      }).join('');
+
+      let txtHora = config.hora ? ` 🕒 <strong>${config.hora}</strong>` : '';
+
+      div.innerHTML = `
+        <div class="subzona-top">
+          <div class="subzona-tit">${s.nombre} ${tagInc}</div>
+          <span class="subzona-epoca-badge ${ep}">${ep}</span>
+        </div>
+        <div class="subzona-datos-linea">
+          <span>⏱️ <strong>${config.minutos || 0} min</strong>${txtHora}</span>
+          <div class="subzona-dias-tags">${diasBadges}</div>
+        </div>
+      `;
+      listaSub.appendChild(div);
+    });
+  }
+
+  navegarA('pantalla-ficha');
+}
+
+// PÁGINA PANTALLA DIARIO
+function renderizarPantallaDiario() {
+  const contenedor = document.getElementById('contenedor-diario-mantenimiento');
+  contenedor.innerHTML = '';
+
+  let todasLasEntradas = [];
+
+  appData.zonas.forEach(z => {
+    (z.diario || []).forEach((d, index) => {
+      todasLasEntradas.push({
+        zonaId: z.id,
+        zonaNombre: z.nombre,
+        zonaIcono: z.icono || '🌿',
+        indexOriginal: index,
+        fecha: d.fecha,
+        subzona: d.subzona || 'General',
+        accion: d.accion
+      });
+    });
+  });
+
+  if (todasLasEntradas.length === 0) {
+    contenedor.innerHTML = '<div class="empty-state">No hay notas de mantenimiento guardadas.</div>';
+    return;
+  }
+
+  todasLasEntradas.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'diario-card';
+    card.innerHTML = `
+      <div class="diario-card-header">
+        <span class="diario-card-zona">${item.zonaIcono} ${item.zonaNombre} (${item.subzona})</span>
+        <span>📅 ${item.fecha}</span>
+      </div>
+      <div class="diario-card-texto">${item.accion}</div>
+      <div class="diario-card-acciones">
+        <button class="btn-secondary btn-xs" onclick="editarEntradaDiario('${item.zonaId}', ${item.indexOriginal})">✏️ Editar</button>
+        <button class="btn-secondary btn-danger btn-xs" onclick="eliminarEntradaDiario('${item.zonaId}', ${item.indexOriginal})">🗑️ Borrar</button>
+      </div>
+    `;
+    contenedor.appendChild(card);
+  });
+}
+
+function abrirModalAnadirEntradaDiario(zonaPref) {
+  const select = document.getElementById('inputDiarioZonaSelect');
+  select.innerHTML = '';
+
+  appData.zonas.forEach(z => {
+    const opt = document.createElement('option');
+    opt.value = z.id;
+    opt.innerText = `${z.icono || '🌿'} ${z.nombre}`;
+    if (zonaPref && z.id === zonaPref) opt.selected = true;
+    select.appendChild(opt);
+  });
+
+  document.getElementById('inputDiarioFecha').value = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  document.getElementById('inputDiarioTexto').value = '';
+  entradaDiarioEdicionIndex = null;
+  document.getElementById('modalEntradaDiarioTitulo').innerText = "Nueva Nota de Mantenimiento";
+
+  abrirModal('modalEntradaDiario');
+}
+
+function editarEntradaDiario(zonaId, index) {
+  const z = appData.zonas.find(item => item.id === zonaId);
+  if (!z || !z.diario || !z.diario[index]) return;
+
+  const entrada = z.diario[index];
+  abrirModalAnadirEntradaDiario(zonaId);
+
+  document.getElementById('inputDiarioFecha').value = entrada.fecha;
+  document.getElementById('inputDiarioTexto').value = entrada.accion;
+  entradaDiarioEdicionIndex = { zonaId, index };
+  document.getElementById('modalEntradaDiarioTitulo').innerText = "Editar Nota de Mantenimiento";
+}
+
+function guardarEntradaDiario() {
+  const zId = document.getElementById('inputDiarioZonaSelect').value;
+  const fecha = document.getElementById('inputDiarioFecha').value.trim();
+  const texto = document.getElementById('inputDiarioTexto').value.trim();
+
+  if (!texto || !zId) return;
+
+  const z = appData.zonas.find(item => item.id === zId);
+  if (!z) return;
+  if (!z.diario) z.diario = [];
+
+  if (entradaDiarioEdicionIndex) {
+    const zOrigen = appData.zonas.find(item => item.id === entradaDiarioEdicionIndex.zonaId);
+    if (zOrigen && zOrigen.diario) zOrigen.diario.splice(entradaDiarioEdicionIndex.index, 1);
+    
+    z.diario.unshift({ fecha, subzona: 'General', accion: texto });
+  } else {
+    z.diario.unshift({ fecha, subzona: 'General', accion: texto });
+  }
+
+  guardarDatosEnStorage();
+  cerrarModal('modalEntradaDiario');
+  renderizarPantallaDiario();
+}
+
+function eliminarEntradaDiario(zonaId, index) {
+  mostrarConfirmacion("Eliminar Nota", "¿Deseas borrar esta entrada del diario?", () => {
+    const z = appData.zonas.find(item => item.id === zonaId);
+    if (z && z.diario) {
+      z.diario.splice(index, 1);
+      guardarDatosEnStorage();
+      renderizarPantallaDiario();
+    }
+  });
+}
+
+// GESTIÓN ZONAS
+function abrirModalNuevaZona() {
+  document.getElementById('inputNuevaZonaNombre').value = '';
+  abrirModal('modalNuevaZona');
+}
+
+function guardarNuevaZona() {
+  const nom = document.getElementById('inputNuevaZonaNombre').value.trim();
+  const ico = document.getElementById('selectNuevaZonaIcono').value;
+  if (!nom) return;
+
+  appData.zonas.push({
+    id: 'z_' + Date.now(),
+    nombre: nom,
+    icono: ico,
+    subzonas: [],
+    diario: []
+  });
+
+  guardarDatosEnStorage();
+  cerrarModal('modalNuevaZona');
+  renderizarHome();
+}
+
+function abrirEditarZonaActual() {
+  const z = appData.zonas.find(item => item.id === zonaSeleccionadaId);
+  if (!z) return;
+  document.getElementById('inputEditZonaNombre').value = z.nombre;
+  document.getElementById('selectEditZonaIcono').value = z.icono || '🌿';
+  abrirModal('modalEditarZona');
+}
+
+function guardarEdicionZona() {
+  const z = appData.zonas.find(item => item.id === zonaSeleccionadaId);
+  if (!z) return;
+  const nom = document.getElementById('inputEditZonaNombre').value.trim();
+  if (nom) z.nombre = nom;
+  z.icono = document.getElementById('selectEditZonaIcono').value;
+  guardarDatosEnStorage();
+  cerrarModal('modalEditarZona');
+  verFichaZona(zonaSeleccionadaId);
+}
+
+function eliminarZonaActual() {
+  mostrarConfirmacion("Eliminar Zona", "¿Estás seguro de que deseas eliminar esta zona y sus subzonas?", () => {
+    appData.zonas = appData.zonas.filter(item => item.id !== zonaSeleccionadaId);
+    guardarDatosEnStorage();
+    navegarA('pantalla-home');
+  });
+}
+
+// SUBZONAS Y EDICIÓN EN PANTALLA INDEPENDIENTE
+function abrirModalNuevaSubzona() {
+  document.getElementById('inputSubzonaNombre').value = '';
+  abrirModal('modalSubzonaNueva');
+}
+
+function crearSubzonaNueva() {
+  const nom = document.getElementById('inputSubzonaNombre').value.trim();
+  if (!nom) return;
+
+  const z = appData.zonas.find(item => item.id === zonaSeleccionadaId);
+  if (!z) return;
+
+  const nuevaSub = {
+    id: 's_' + Date.now(),
+    nombre: nom,
+    epocaActiva: 'verano',
+    temporadas: {
+      verano: { minutos: 10, hora: '08:00', dias: [0, 2, 4] },
+      invierno: { minutos: 5, hora: '09:00', dias: [0] },
+      entretiempo: { minutos: 8, hora: '08:30', dias: [0, 3] }
+    },
+    incidencias: []
+  };
+
+  if (!z.subzonas) z.subzonas = [];
+  z.subzonas.push(nuevaSub);
+  guardarDatosEnStorage();
+  cerrarModal('modalSubzonaNueva');
+  verFichaZona(zonaSeleccionadaId);
+}
+
+function abrirPantallaEditarSubzona(subId) {
+  subzonaSeleccionadaId = subId;
+  const z = appData.zonas.find(item => item.id === zonaSeleccionadaId);
+  const s = z.subzonas.find(item => item.id === subId);
+  if (!s) return;
+
+  edicionTempSubzona = JSON.parse(JSON.stringify(s));
+
+  document.getElementById('edSubzonaNombre').value = edicionTempSubzona.nombre;
+  document.getElementById('edSubzonaEpocaActiva').value = edicionTempSubzona.epocaActiva || 'verano';
+
+  renderPanelesTemporadasEdicion();
+  switchTabEdicion(edicionTempSubzona.epocaActiva || 'verano');
+  renderListaIncidenciasEdicion();
+
+  navegarA('pantalla-editar-subzona');
+}
+
+function switchTabEdicion(epoca) {
+  ['verano', 'invierno', 'entretiempo'].forEach(ep => {
+    document.getElementById(`tabEd_${ep}`).classList.toggle('active', ep === epoca);
+    document.getElementById(`panelEd_${ep}`).classList.toggle('active', ep === epoca);
+  });
+}
+
+function renderPanelesTemporadasEdicion() {
+  ['verano', 'invierno', 'entretiempo'].forEach(ep => {
+    if (!edicionTempSubzona.temporadas[ep]) {
+      edicionTempSubzona.temporadas[ep] = { minutos: 0, hora: '', dias: [] };
+    }
+    const config = edicionTempSubzona.temporadas[ep];
+    const p = document.getElementById(`panelEd_${ep}`);
+    
+    let diasBtns = DIAS_SEMANA.map((d, i) => {
+      const sel = config.dias && config.dias.includes(i);
+      return `<button type="button" class="dia-btn ${sel ? 'selected' : ''}" onclick="toggleDiaEdicion('${ep}', ${i})">${d}</button>`;
+    }).join('');
+
+    p.innerHTML = `
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">Minutos de Riego</label>
+          <input type="number" class="form-input" value="${config.minutos || 0}" onchange="cambiarMinutosEdicion('${ep}', this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora de Riego</label>
+          <input type="time" class="form-input" value="${config.hora || ''}" onchange="cambiarHoraEdicion('${ep}', this.value)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Días de la semana</label>
+        <div class="dias-grid">${diasBtns}</div>
+      </div>
+    `;
+  });
+}
+
+function toggleDiaEdicion(ep, diaIdx) {
+  if (!edicionTempSubzona.temporadas[ep].dias) edicionTempSubzona.temporadas[ep].dias = [];
+  const arr = edicionTempSubzona.temporadas[ep].dias;
+  const idx = arr.indexOf(diaIdx);
+  if (idx > -1) arr.splice(idx, 1);
+  else arr.push(diaIdx);
+  renderPanelesTemporadasEdicion();
+}
+
+function cambiarMinutosEdicion(ep, val) { edicionTempSubzona.temporadas[ep].minutos = parseInt(val) || 0; }
+function cambiarHoraEdicion(ep, val) { edicionTempSubzona.temporadas[ep].hora = val; }
+
+function actualizarInterfazModalEdicion() {
+  edicionTempSubzona.epocaActiva = document.getElementById('edSubzonaEpocaActiva').value;
+  switchTabEdicion(edicionTempSubzona.epocaActiva);
+}
+
+// INCIDENCIAS Y RESOLUCIÓN DIRECTA AL DIARIO
+function renderListaIncidenciasEdicion() {
+  const cont = document.getElementById('edSubzonaListaIncidencias');
+  cont.innerHTML = '';
+
+  if (!edicionTempSubzona.incidencias || edicionTempSubzona.incidencias.length === 0) {
+    cont.innerHTML = '<div class="empty-state">Sin incidencias pendientes</div>';
+    return;
+  }
+
+  edicionTempSubzona.incidencias.forEach((inc, index) => {
+    const d = document.createElement('div');
+    d.className = `incidencia-row ${inc.urgente ? 'urgente' : ''}`;
+    d.innerHTML = `
+      <span>${inc.urgente ? '🚨' : '⚠️'} ${inc.texto}</span>
+      <button class="btn-primary" style="padding:4px 10px; font-size:0.75rem; background:rgba(16, 185, 129, 0.2); border-color:var(--accent-green);" 
+              onclick="resolverIncidenciaDirecta(${index})">
+        ✅ Resolver
+      </button>
+    `;
+    cont.appendChild(d);
+  });
+}
+
+function agregarIncidenciaDesdeEdicion() {
+  const txt = document.getElementById('edNuevaIncidenciasTexto').value.trim();
+  const urg = document.getElementById('edNuevaIncidenciaUrgente').checked;
+  if (!txt) return;
+
+  if (!edicionTempSubzona.incidencias) edicionTempSubzona.incidencias = [];
+  edicionTempSubzona.incidencias.push({ texto: txt, urgente: urg });
+
+  document.getElementById('edNuevaIncidenciasTexto').value = '';
+  document.getElementById('edNuevaIncidenciaUrgente').checked = false;
+
+  renderListaIncidenciasEdicion();
+}
+
+function resolverIncidenciaDirecta(index) {
+  const inc = edicionTempSubzona.incidencias[index];
+  const z = appData.zonas.find(item => item.id === zonaSeleccionadaId);
+  
+  if (z) {
+    if (!z.diario) z.diario = [];
+    z.diario.unshift({
+      fecha: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      subzona: edicionTempSubzona.nombre,
+      accion: `[Reparación] ${inc.texto}`
+    });
+  }
+
+  edicionTempSubzona.incidencias.splice(index, 1);
+  renderListaIncidenciasEdicion();
+}
+
+function guardarCambiosSubzona() {
+  const z = appData.zonas.find(item => item.id === zonaSeleccionadaId);
+  if (!z) return;
+
+  edicionTempSubzona.nombre = document.getElementById('edSubzonaNombre').value.trim() || edicionTempSubzona.nombre;
+  edicionTempSubzona.epocaActiva = document.getElementById('edSubzonaEpocaActiva').value;
+
+  const idx = z.subzonas.findIndex(item => item.id === subzonaSeleccionadaId);
+  if (idx > -1) z.subzonas[idx] = edicionTempSubzona;
+
+  guardarDatosEnStorage();
+  verFichaZona(zonaSeleccionadaId);
+}
+
+function eliminarSubzonaDesdeEdicion() {
+  mostrarConfirmacion("Eliminar Subzona", "¿Eliminar esta subzona permanentemente?", () => {
+    const z = appData.zonas.find(item => item.id === zonaSeleccionadaId);
+    if (z) {
+      z.subzonas = z.subzonas.filter(item => item.id !== subzonaSeleccionadaId);
+      guardarDatosEnStorage();
+    }
+    verFichaZona(zonaSeleccionadaId);
+  });
+}
+
+// BACKUP
+function exportarBackup() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `jardin_alzira_backup_${Date.now()}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function importarBackup(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      let contenido = e.target.result.trim();
+      const importedData = JSON.parse(contenido);
+
+      if (importedData && typeof importedData === 'object') {
+        if (Array.isArray(importedData.zonas)) appData = importedData;
+        else if (Array.isArray(importedData)) appData = { zonas: importedData };
+        else {
+          mostrarAviso("Error", "El JSON no contiene un formato de zonas válido.");
+          return;
+        }
+
+        guardarDatosEnStorage();
+        mostrarAviso("Éxito", "Copia de seguridad restaurada correctamente.", () => {
+          navegarA('pantalla-home');
+        });
+      }
+    } catch (err) {
+      mostrarAviso("Error", "No se pudo leer el JSON. Comprueba el archivo.");
+    }
+  };
+  
+  reader.readAsText(file, 'UTF-8');
+  input.value = '';
+}
+</script>
+</body>
+</html>
