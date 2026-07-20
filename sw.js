@@ -1,5 +1,5 @@
-// VERSIÓN 4 – Jardín Residencial
-const CACHE_NAME = 'jardin-alzira-v4';
+// VERSIÓN 5 – Jardín Residencial
+const CACHE_NAME = 'jardin-alzira-v5';
 const ASSETS = [
   './',
   './index.html',
